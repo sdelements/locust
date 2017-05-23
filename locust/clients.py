@@ -108,7 +108,9 @@ class HttpSession(requests.Session):
         url = self._build_url(url)
 
         # store meta data that is used when reporting the request to locust's statistics
-        request_meta = extra_data if extra_data else {}
+        request_meta = extra_data or {
+            'num_runners': self.runner.user_count
+        }
 
         # set up pre_request hook for attaching meta data to the request object
         request_meta["method"] = method
@@ -139,6 +141,7 @@ class HttpSession(requests.Session):
                     request_type=request_meta["method"],
                     name=request_meta["name"],
                     response_time=request_meta["response_time"],
+                    num_runners=request_meta["num_runners"],
                     exception=e,
                 )
             else:
@@ -147,6 +150,7 @@ class HttpSession(requests.Session):
                     name=request_meta["name"],
                     response_time=request_meta["response_time"],
                     response_length=request_meta["content_size"],
+                    num_runners=request_meta["num_runners"]
                 )
             return response
 
@@ -222,6 +226,7 @@ class ResponseContextManager(LocustResponse):
             name=self.locust_request_meta["name"],
             response_time=self.locust_request_meta["response_time"],
             response_length=self.locust_request_meta["content_size"],
+            num_runners=self.locust_request_meta["num_runners"]
         )
         self._is_reported = True
 
@@ -245,6 +250,7 @@ class ResponseContextManager(LocustResponse):
             request_type=self.locust_request_meta["method"],
             name=self.locust_request_meta["name"],
             response_time=self.locust_request_meta["response_time"],
+            num_runners=self.locust_request_meta["num_runners"],
             exception=exc,
         )
         self._is_reported = True
