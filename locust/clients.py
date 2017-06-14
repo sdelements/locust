@@ -48,6 +48,11 @@ class HttpSession(requests.Session):
     """
 
     def __init__(self, base_url, runner=None, *args, **kwargs):
+        """
+        :param: base_url: URL to send HTTP request to.
+        :runner: runner: locust runner whose client is sending the request.
+        """
+
         super(HttpSession, self).__init__(*args, **kwargs)
 
         self.base_url = base_url
